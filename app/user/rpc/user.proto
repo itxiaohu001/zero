@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "internal/pb";
+
+import "google/protobuf/descriptor.proto";
+
+// 状态码枚举
+enum StatusCode {
+  // 成功
+  OK = 0;
+
+  // 未知错误
+  UNKNOWN_ERROR = 1;
+  // 内部服务器错误
+  INTERNAL_ERROR = 2;
+  // 无效资源
+  INVALID_ARGUMENT = 3;
+  // 未找到资源
+  NOT_FOUND = 4;
+  // 资源已存在
+  ALREADY_EXISTS = 5;
+  // 权限被拒绝
+  PERMISSION_DENIED = 6;
+  // 未认证
+  UNAUTHENTICATED = 7;
+
+  // 用户名已存在
+  USERNAME_ALREADY_EXISTS = 10;
+  // 邮箱已存在
+  EMAIL_ALREADY_EXISTS = 11;
+  // 用户不存在
+  USER_NOT_FOUND = 12;
+  // 密码错误
+  WRONG_PASSWORD = 13;
+}
+
+// 用户注册请求
+message RegisterRequest {
+  string username = 1;       // 用户名
+  string password = 2;       // 密码
+  string email = 3;          // 邮箱
+}
+
+// 用户注册响应
+message RegisterResponse {
+  bool success = 1;          // 注册是否成功
+  StatusCode code = 2;            // 状态码
+  string message = 3;        // 消息
+}
+
+// 用户登录请求
+message LoginRequest {
+  string username = 1;       // 用户名
+  string password = 2;       // 密码
+}
+
+// 用户登录响应
+message LoginResponse {
+  bool success = 1;          // 登录是否成功
+  StatusCode code = 2;            // 状态码
+  string token = 3;          // JWT 令牌
+  string message = 4;        // 消息
+}
+
+// 获取用户信息请求
+message UserInfoRequest {
+  string token = 1;          // JWT 令牌
+  int64 userId = 2;          // 用户ID
+}
+
+// 获取用户信息响应
+message UserInfoResponse {
+  bool success = 1;          // 请求是否成功
+  StatusCode code = 2;            // 状态码
+  string username = 3;       // 用户名
+  string email = 4;          // 邮箱
+  string message = 5;        // 消息
+}
+
+// 列出用户请求
+message ListUsersRequest {
+  string token = 1;          // JWT 令牌
+  int32 page = 2;            // 分页页码
+  int32 pageSize = 3;        // 每页条目数
+}
+
+// 列出用户响应
+message ListUsersResponse {
+  bool success = 1;          // 请求是否成功
+  StatusCode code = 2;            // 状态码
+  repeated User users = 3;   // 用户列表
+  int32 total = 4;           // 总用户数
+  string message = 5;        // 消息
+}
+
+// 获取用户详情请求
+message GetUserDetailsRequest {
+  string token = 1;          // JWT 令牌
+  int64 userId = 2;          // 用户ID
+}
+
+// 获取用户详情响应
+message GetUserDetailsResponse {
+  bool success = 1;          // 请求是否成功
+  StatusCode code = 2;            // 状态码
+  User user = 3;             // 用户详情
+  string message = 4;        // 消息
+}
+
+// 用户实体
+message User {
+  int64 id = 1;              // 用户ID
+  string username = 2;       // 用户名
+  string email = 3;          // 邮箱
+  string createdAt = 4;      // 创建时间
+  string updatedAt = 5;      // 更新时间
+}
+
+// 用户服务
+service UserService {
+  // 注册
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  // 登录
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  // 获取用户信息
+  rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse) {}
+  // 展示用户列表
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {}
+  // 获取用户详细信息
+  rpc GetUserDetails(GetUserDetailsRequest) returns (GetUserDetailsResponse) {}
+}
